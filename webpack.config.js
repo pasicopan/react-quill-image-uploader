@@ -17,7 +17,7 @@ module.exports = {
     filename: 'react-quill-image-uploader.min.js', // 输出文件
     libraryTarget: 'umd', // 采用通用模块定义
     library: 'ReactQuillImageUploader', // 库名称
-    // libraryExport: 'default', // 兼容 ES6(ES2015) 的模块系统、CommonJS 和 AMD 模块规范
+    libraryExport: 'default', // 兼容 ES6(ES2015) 的模块系统、CommonJS 和 AMD 模块规范
   },
   devtool: '#source-map',
   module: {
@@ -52,11 +52,22 @@ module.exports = {
                 noIeCompat: true,
             },
         }],
-    },
+      },
     ],
   },
   externals: {
-    react: 'React',
+    react: {
+        root: 'React',
+        commonjs2: 'react',
+        commonjs: 'react',
+        amd: 'react',
+    },
+    'react-dom': {
+        root: 'ReactDOM',
+        commonjs2: 'react-dom',
+        commonjs: 'react-dom',
+        amd: 'react-dom',
+    },
   },
   plugins: isProd
     ? [

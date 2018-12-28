@@ -17,7 +17,7 @@
 <div id="example"></div>
 
 <script type="text/babel">
-// import ReactQuillImageUploader,{saveImageSrc} from 'ReactQuillImageUploader'
+// import ReactQuillImageUploader,{saveImageSrc} from 'react-quill-image-uploader'
 
 class App extends React.Component {
   state={}
@@ -39,6 +39,9 @@ class App extends React.Component {
   componentDidMount () {
 		this.quill = this.quillRef && this.quillRef.getEditor()
     this.setState({ quill: this.quill })
+    // import {saveImageSrc} from 'react-quill-image-uploader', call saveImageSrc('https://iph.href.lu/100x100')
+    // or
+    // <script> call 
     ReactQuillImageUploader.saveImageSrc('https://iph.href.lu/100x100')
   }
 
@@ -51,8 +54,7 @@ class App extends React.Component {
         placeholder={placeholder}
         modules={modules || this.modules}
         className={className}/>
-      <ReactQuillImageUploader.default ref={(el) => { this.ReactQuillImageUploaderRef = el }} quill={this.state.quill} uploadCallback={uploadImageCallBack} />
-      {/* ES6 with webpack and import use <ReactQuillImageUploader /> */}
+      <ReactQuillImageUploader ref={(el) => { this.ReactQuillImageUploaderRef = el }} quill={quill} uploadCallback={uploadImageCallBack} />
     </div>)
   }
 }

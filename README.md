@@ -9,12 +9,20 @@ a plugin for react-quill which can upload multi image and remember the image url
 - drag the toolbar of the plugin and move where you want
 
 
+# how to install
+
+```javascript
+npm i react-quill-image-uploader
+// yarn add react-quill-image-uploader
+```
 # how to use
+
 demo: ./demo/index.html [Demo](./demo/index.html "Demo")
 
 ```javascript
 import ReactQuill from 'react-quill'
-import ReactQuillImageUploader,{saveImageSrc} from 'ReactQuillImageUploader'
+import 'react-quill/dist/quill.snow.css'
+import ReactQuillImageUploader,{saveImageSrc} from 'react-quill-image-uploader'
 
 class App extends React.Component {
   modules = {
@@ -31,7 +39,10 @@ class App extends React.Component {
   componentDidMount () {
 		this.quill = this.quillRef && this.quillRef.getEditor()
     this.setState({ quill: this.quill })
-    // this.ReactQuillImageUploader.saveImageSrc('https://iph.href.lu/100x100') // save image url to plugin history manually
+    // import {saveImageSrc} from 'react-quill-image-uploader', call saveImageSrc('https://iph.href.lu/100x100')
+    // or
+    // <script> call 
+    ReactQuillImageUploader.saveImageSrc('https://iph.href.lu/100x100') // save image url to plugin history manually
   }
 
   render () {
@@ -44,7 +55,6 @@ class App extends React.Component {
         modules={modules || this.modules}
         className={className}/>
       <ReactQuillImageUploader ref={(el) => { this.ReactQuillImageUploaderRef = el }} quill={this.state.quill} uploadCallback={uploadImageCallBack} />
-      {/* ES6 with webpack and import use <ReactQuillImageUploader /> */}
     </div>)
   }
 }

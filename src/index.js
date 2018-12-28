@@ -1,4 +1,4 @@
-import { Component } from 'react'
+import React from 'react'
 import style from './style.less'
 
 const LOCALSTORAGENAME = 'editorUploadImageHistory'
@@ -41,7 +41,7 @@ function removeImageSrc (imgSrc) {
 /**
  * ReactQuillImageUploader
  */
-export default class ReactQuillImageUploader extends Component {
+export default class ReactQuillImageUploader extends React.Component {
   isDrag = false
   componentPosition = Object.assign({}, originPosition)
   state={
@@ -52,6 +52,7 @@ export default class ReactQuillImageUploader extends Component {
     list: [],
     componentPositionStyle: { left: `${originPosition.x}px`, top: `${originPosition.y}px` },
   }
+  static saveImageSrc=saveImageSrc
   componentWillMount () {
     reactQuillImageUploader = this
     this.isShowDialog = this.state.isShowDialog
