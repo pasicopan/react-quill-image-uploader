@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Demo</title>
+<script src="https://unpkg.com/prop-types/prop-types.js"></script>
+<script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
+<script src="https://unpkg.com/react@16.7.0/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@16.7.0/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/react-quill@latest/dist/react-quill.js"></script>
+<script src="../lib/react-quill-image-uploader.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/react-quill@1.0.0/dist/quill.core.css" />
+<link rel="stylesheet" href="https://unpkg.com/react-quill@1.0.0/dist/quill.snow.css" />
+</head>
+<body>
+
+<div id="example"></div>
+
+<script type="text/babel">
+
+class App extends React.Component {
+  state={}
+  modules = {
+    toolbar: {
+      container: [
+        [ 'bold', 'italic', 'underline', 'strike' ],
+        [ 'image' ]
+      ],
+      handlers: {
+        'image': () => {
+          const {clientX,y:clientY } = window.event
+          const position = {x:clientX,y:clientY}
+          this.ReactQuillImageUploaderRef && this.ReactQuillImageUploaderRef.toggle(position)
+        }
+      }
+    }
+  }
+  componentDidMount () {
+		this.quill = this.quillRef && this.quillRef.getEditor()
+		this.setState({ quill: this.quill })
+  }
+
+  render () {
+    const { modules, className = '', placeholder = 'write here..' } = this.props
+    const { quill={} } = this.state
+    return (<div>
+      <ReactQuill
+        ref={(el) => { this.quillRef = el; }}
+        placeholder={placeholder}
+        modules={modules || this.modules}
+        className={className}/>
+			<ReactQuillImageUploader.default ref={(el) => { this.ReactQuillImageUploaderRef = el }} quill={this.state.quill} uploadCallback={uploadImageCallBack} />
+    </div>)
+  }
+}
+// 编辑器图片上传回调
+async function uploadImageCallBack (file) {
+  return Promise.resolve({
+    data: {
+      link:'https://iph.href.lu/200x200'
+    }
+  })
+}
+ReactDOM.render(
+	<App/>,
+	document.getElementById('example')
+);
+</script>
+
+</body>
+</html>
