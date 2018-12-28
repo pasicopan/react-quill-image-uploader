@@ -4,6 +4,7 @@ import style from './style.less'
 const LOCALSTORAGENAME = 'editorUploadImageHistory'
 const LOCALSTORAGEDEFAULTVALUE = '{"list":[]}'
 const originPosition = { x: 50, y: -100 }
+let reactQuillImageUploader = null
 
 function getDataFromLocalstorage () {
   const dataJSONString = localStorage.getItem(LOCALSTORAGENAME) || LOCALSTORAGEDEFAULTVALUE
@@ -21,10 +22,11 @@ function saveImageSrc (imgSrc) {
   data.list.unshift(imgSrc)
   try {
     localStorage.setItem(LOCALSTORAGENAME, JSON.stringify(data))
+    reactQuillImageUploader && reactQuillImageUploader.updataList()
   } catch (err) {
     console.log(err)
     localStorage.setItem(LOCALSTORAGENAME, LOCALSTORAGEDEFAULTVALUE)
-  }
+  }  
 }
 function removeImageSrc (imgSrc) {
   const data = getDataFromLocalstorage()
@@ -51,6 +53,7 @@ export default class ReactQuillImageUploader extends Component {
     componentPositionStyle: { left: `${originPosition.x}px`, top: `${originPosition.y}px` },
   }
   componentWillMount () {
+    reactQuillImageUploader = this
     this.isShowDialog = this.state.isShowDialog
     document.body.addEventListener('mousemove', this.componentMouseMove)
     document.body.addEventListener('mouseup', this.componentMouseUp)
@@ -129,7 +132,6 @@ export default class ReactQuillImageUploader extends Component {
       dataList.forEach((data)=>{
         if (data.data.link) {
           saveImageSrc(data.data.link)
-          this.updataList()
         }
         finished++
         if (finished === len) {

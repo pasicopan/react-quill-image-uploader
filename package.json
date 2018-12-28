@@ -1,7 +1,7 @@
 {
   "name": "react-quill-image-uploader",
   "version": "0.0.1",
-  "description": "a plus for react-quill which can upload multi image and remember the image url histroy",
+  "description": "a plugin for react-quill which can upload multi image and remember the image url histroy",
   "main": "react-quill-image-uploader.min.js",
   "scripts": {
     "build": "webpack -p --progress --colors",
