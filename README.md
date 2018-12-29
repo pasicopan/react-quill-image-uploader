@@ -27,6 +27,10 @@ import ReactQuillImageUploader,{saveImageSrc} from 'react-quill-image-uploader'
 class App extends React.Component {
   modules = {
     toolbar: {
+       container: [
+        [ 'bold', 'italic', 'underline', 'strike' ],
+        [ 'image' ]
+      ],
       handlers: {
         'image': () => {
           const {clientX,y:clientY } = window.event
