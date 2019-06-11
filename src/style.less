@@ -82,6 +82,27 @@
     overflow-x: hidden;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     background-color: #eee;
+    .urlform {
+      padding: 10px;
+      .urlItem {
+        display: flex;
+        flex-direction: row;
+        margin: 5px 0;
+      }
+      .urlLabel {
+        text-align: right;
+        display: block;
+        width: 50px;
+        flex-shrink: 0;
+      }
+      .urlInput {
+        display: block;
+        width: 100%;
+      }
+      .submitBtnCon {
+        text-align: right;
+      }
+    }
     .historyTitle {
       font-size: 14px;
       font-style: italic;
@@ -116,7 +137,7 @@
             display: flex;
             flex-direction: row;
             align-items: center;
-            justify-content: flex-end;
+            justify-content: center;
             .insertBtn,
             .deleteBtn {
               cursor: pointer;

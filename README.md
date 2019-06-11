@@ -30,10 +30,7 @@ import ReactQuillImageUploader, {
 class App extends React.Component {
   modules = {
     toolbar: {
-       container: [
-        [ 'bold', 'italic', 'underline', 'strike' ],
-        [ 'image' ]
-      ],
+      container: [["bold", "italic", "underline", "strike"], ["image"]],
       handlers: {
         image: () => {
           const { clientX, y: clientY } = window.event
@@ -49,8 +46,13 @@ class App extends React.Component {
     this.setState({ quill: this.quill })
     // import {saveImageSrc} from 'react-quill-image-uploader', call saveImageSrc('https://iph.href.lu/100x100')
     // or
-    // <script> call
-    ReactQuillImageUploader.saveImageSrc("https://iph.href.lu/100x100") // save image url to plugin history manually
+    // from version 0.0.1
+    ReactQuillImageUploader.saveImageSrc("https://iph.href.lu/100x100")
+    // from version 0.0.4
+    // ReactQuillImageUploader.saveImage({
+    //   name: "test",
+    //   src: "https://iph.href.lu/100x100"
+    // })
   }
 
   render() {
@@ -90,4 +92,5 @@ async function uploadImageCallBack(file) {
 
 ### history
 
-- 20190611 update to new UI, insert image without focus on editor。
+- 20190611,v0.0.4 add new upload type, upload by insert image src。
+- 20190611,v0.0.3 update to new UI, insert image without focus on editor。

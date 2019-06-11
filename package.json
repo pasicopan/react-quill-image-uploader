@@ -1,6 +1,6 @@
 {
   "name": "react-quill-image-uploader",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "a plugin for react-quill which can upload multi image and remember the image url histroy",
   "main": "lib/react-quill-image-uploader.min.js",
   "scripts": {

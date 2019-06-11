@@ -18,7 +18,7 @@ function getDataFromLocalstorage() {
   return data
 }
 
-function saveImageSrc({ name, src }) {
+function saveImage({ name, src }) {
   const data = getDataFromLocalstorage()
   if (data.list.some(d => d.src === src)) return
   data.list.unshift({ name, src })
@@ -30,6 +30,16 @@ function saveImageSrc({ name, src }) {
     console.log(err)
     localStorage.setItem(LOCALSTORAGENAME, LOCALSTORAGEDEFAULTVALUE)
   }
+}
+
+/**
+ * saveImageSrc
+ * for version <=0.0.2
+ * @date 2019-06-11
+ * @param {*} { name, src }
+ */
+function saveImageSrc(src) {
+  saveImage({ name: "", src })
 }
 function removeImageSrc(imgSrc) {
   const data = getDataFromLocalstorage()
@@ -48,6 +58,9 @@ export default class ReactQuillImageUploader extends React.Component {
   isDrag = false
   componentPosition = Object.assign({}, originPosition)
   state = {
+    urlName: "",
+    urlLink: "",
+    uploadType: "file",
     editorSelectionIndex: 0,
     hasAddEvent: false,
     style: style,
@@ -156,14 +169,13 @@ export default class ReactQuillImageUploader extends React.Component {
     let finished = 0
     const promiseList = []
     const len = e.target.files.length
-    console.log("e.target.files=", e.target.files)
     for (let i = 0; i < len; i++) {
       promiseList.push(uploadCallback(e.target.files[i]))
     }
     Promise.all(promiseList).then(dataList => {
       dataList.forEach(data => {
         if (data.data.link) {
-          saveImageSrc(data.data)
+          saveImage({ name: data.data.name, src: data.data.link })
         }
         finished++
         if (finished === len) {
@@ -225,6 +237,24 @@ export default class ReactQuillImageUploader extends React.Component {
       this.resetComponentPosition()
     }
   }
+  onChangeUploadType = e => {
+    console.log("onChangeUploadType,e=", e, e.currentTarget.value)
+    this.setState({ uploadType: e.currentTarget.value })
+  }
+  handleSubmitURL = () => {
+    const { urlName: name, urlLink: src } = this.state
+    saveImage({ name, src })
+  }
+  handleChangeUrlName = e => {
+    this.setState({
+      urlName: e.target.value,
+    })
+  }
+  handleChangeUrlLink = e => {
+    this.setState({
+      urlLink: e.target.value,
+    })
+  }
 
   render() {
     const { uploading } = this.state
@@ -244,25 +274,72 @@ export default class ReactQuillImageUploader extends React.Component {
                 X
               </div>
             </div>
-            <div className={style.uploadInputContainer}>
-              <div className={style.uploadInputLabelContainer}>
+            {/* upload by file */}
+            {this.state.uploadType === "file" && (
+              <div className={style.uploadInputContainer}>
+                <div className={style.uploadInputLabelContainer}>
+                  {!uploading && (
+                    <p className={style.uploadInputLabel}>click or drag</p>
+                  )}
+                  {uploading && (
+                    <p className={style.uploadInputLabel}>uploading...</p>
+                  )}
+                </div>
                 {!uploading && (
-                  <p className={style.uploadInputLabel}>click or drag</p>
-                )}
-                {uploading && (
-                  <p className={style.uploadInputLabel}>uploading...</p>
+                  <input
+                    ref={""}
+                    className={style.uploadInput}
+                    type="file"
+                    accept="image/gif,image/jpeg,image/jpg,image/png,image/svg"
+                    multiple
+                    onChange={this.getFiles}
+                  />
                 )}
               </div>
-              {!uploading && (
-                <input
-                  ref={""}
-                  className={style.uploadInput}
-                  type="file"
-                  accept="image/gif,image/jpeg,image/jpg,image/png,image/svg"
-                  multiple
-                  onChange={this.getFiles}
-                />
-              )}
+            )}
+            {/* upload by url */}
+            {this.state.uploadType === "url" && (
+              <div className={style.urlform}>
+                <div className={style.urlItem}>
+                  <label className={style.urlLabel}>name: </label>
+                  <input
+                    className={style.urlInput}
+                    type="text"
+                    value={this.state.urlName}
+                    onChange={this.handleChangeUrlName}
+                  />
+                </div>
+                <div className={style.urlItem}>
+                  <label className={style.urlLabel}>url: </label>
+                  <input
+                    className={style.urlInput}
+                    type="text"
+                    value={this.state.urlLink}
+                    onChange={this.handleChangeUrlLink}
+                  />
+                </div>
+                <div className={style.submitBtnCon}>
+                  <button onClick={this.handleSubmitURL}>submit</button>
+                </div>
+              </div>
+            )}
+            <div>
+              <input
+                type="radio"
+                name="uploadType"
+                value="file"
+                checked={this.state.uploadType === "file"}
+                onChange={this.onChangeUploadType}
+              />
+              <span>File</span>
+              <input
+                type="radio"
+                name="uploadType"
+                value="url"
+                checked={this.state.uploadType === "url"}
+                onChange={this.onChangeUploadType}
+              />
+              <span>URL</span>
             </div>
             {this.state.list.length > 0 && (
               <p className={style.historyTitle}>upload history</p>
@@ -311,4 +388,4 @@ export default class ReactQuillImageUploader extends React.Component {
   }
 }
 
-export { saveImageSrc, removeImageSrc }
+export { saveImage, saveImageSrc, removeImageSrc }
