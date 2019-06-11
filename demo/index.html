@@ -53,7 +53,21 @@
           //   src: "https://iph.href.lu/100x100"
           // })
         }
+        uploadImageCallBack = async file => {
+          // post file
+          const src = "https://iph.href.lu/200x200"
 
+          // insertImg by hand
+          this.ReactQuillImageUploaderRef &&
+            this.ReactQuillImageUploaderRef.insertImg(src)
+
+          return Promise.resolve({
+            data: {
+              name: file.name || "",
+              link: src
+            }
+          })
+        }
         render() {
           const {
             modules,
@@ -76,20 +90,11 @@
                   this.ReactQuillImageUploaderRef = el
                 }}
                 quill={quill}
-                uploadCallback={uploadImageCallBack}
+                uploadCallback={this.uploadImageCallBack}
               />
             </div>
           )
         }
-      }
-      async function uploadImageCallBack(file) {
-        // post file
-        return Promise.resolve({
-          data: {
-            name: file.name || "",
-            link: "https://iph.href.lu/200x200"
-          }
-        })
       }
       ReactDOM.render(<App />, document.getElementById("example"))
     </script>

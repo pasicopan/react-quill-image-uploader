@@ -55,6 +55,21 @@ class App extends React.Component {
     // })
   }
 
+  uploadImageCallBack = async file => {
+    // post file
+    const src = "https://iph.href.lu/200x200"
+
+    // insertImg by hand
+    this.ReactQuillImageUploaderRef &&
+      this.ReactQuillImageUploaderRef.insertImg(src)
+
+    return Promise.resolve({
+      data: {
+        name: file.name || "",
+        link: src
+      }
+    })
+  }
   render() {
     const { modules, className = "", placeholder = "write here.." } = this.props
     const { quill = {} } = this.state
@@ -78,15 +93,6 @@ class App extends React.Component {
       </div>
     )
   }
-}
-async function uploadImageCallBack(file) {
-  // post file
-  return Promise.resolve({
-    data: {
-      name: file.name || "",
-      link: "https://iph.href.lu/200x200"
-    }
-  })
 }
 ```
 

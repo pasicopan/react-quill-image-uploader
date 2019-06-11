@@ -109,16 +109,12 @@ export default class ReactQuillImageUploader extends React.Component {
     const data = getDataFromLocalstorage()
     this.setState({ list: data.list })
   }
-  deleteImg = (event, imgSrc) => {
-    event.stopPropagation()
-    event.preventDefault()
+  deleteImg = imgSrc => {
     const list = this.state.list.filter(img => imgSrc !== img.src)
     this.setState({ list })
     removeImageSrc(imgSrc)
   }
-  insertImg = (event, imgSrc, width = "100%") => {
-    event.stopPropagation()
-    event.preventDefault()
+  insertImg = (imgSrc, width = "100%") => {
     const { quill } = this.props
     const index = this.state.editorSelectionIndex
     quill.insertEmbed(index, "image", imgSrc, "user")
@@ -362,7 +358,7 @@ export default class ReactQuillImageUploader extends React.Component {
                         <div
                           className={style.insertBtn}
                           onClick={e => {
-                            this.insertImg(e, img.src)
+                            this.insertImg(img.src)
                           }}
                         >
                           insert
@@ -370,7 +366,7 @@ export default class ReactQuillImageUploader extends React.Component {
                         <div
                           className={style.deleteBtn}
                           onClick={e => {
-                            this.deleteImg(e, img.src)
+                            this.deleteImg(img.src)
                           }}
                         >
                           delete
