@@ -1,9 +1,11 @@
 {
   "name": "react-quill-image-uploader",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "a plugin for react-quill which can upload multi image and remember the image url histroy",
   "main": "lib/react-quill-image-uploader.min.js",
   "scripts": {
+    "watch": "webpack --watch",
+    "start": "webpack --progress --colors",
     "build": "webpack -p --progress --colors",
     "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,7 +21,7 @@
     "url": "git+https://github.com/pasicopan/react-quill-image-uploader.git"
   },
   "bugs": {
-    "url": "https://github.com/concrete-cc/quill-image-resize-module-react/issues"
+    "url": "https://github.com/pasicopan/react-quill-image-uploader/issues"
   },
   "author": "https://github.com/pasicopan",
   "license": "MIT",

@@ -1,76 +1,95 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8" />
-<title>Demo</title>
-<script src="https://unpkg.com/prop-types/prop-types.js"></script>
-<script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
-<script src="https://unpkg.com/react@16.7.0/umd/react.development.js"></script>
-<script src="https://unpkg.com/react-dom@16.7.0/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/react-quill@latest/dist/react-quill.js"></script>
-<script src="../lib/react-quill-image-uploader.min.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/react-quill@1.0.0/dist/quill.core.css" />
-<link rel="stylesheet" href="https://unpkg.com/react-quill@1.0.0/dist/quill.snow.css" />
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Demo</title>
+    <script src="https://unpkg.com/prop-types/prop-types.js"></script>
+    <script src="https://cdn.staticfile.org/babel-standalone/6.26.0/babel.min.js"></script>
+    <script src="https://unpkg.com/react@16.7.0/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16.7.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/react-quill@latest/dist/react-quill.js"></script>
+    <script src="../lib/react-quill-image-uploader.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/react-quill@1.0.0/dist/quill.core.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/react-quill@1.0.0/dist/quill.snow.css"
+    />
+  </head>
 
-<div id="example"></div>
+  <body>
+    <div id="example"></div>
 
-<script type="text/babel">
-// import ReactQuillImageUploader,{saveImageSrc} from 'react-quill-image-uploader'
+    <script type="text/babel">
+      // import ReactQuillImageUploader,{saveImageSrc} from 'react-quill-image-uploader'
 
-class App extends React.Component {
-  state={}
-  modules = {
-    toolbar: {
-      container: [
-        [ 'bold', 'italic', 'underline', 'strike' ],
-        [ 'image' ]
-      ],
-      handlers: {
-        'image': () => {
-          const {clientX,y:clientY } = window.event
-          const position = {x:clientX,y:clientY}
-          this.ReactQuillImageUploaderRef && this.ReactQuillImageUploaderRef.toggle(position)
+      class App extends React.Component {
+        state = {}
+        modules = {
+          toolbar: {
+            container: [["bold", "italic", "underline", "strike"], ["image"]],
+            handlers: {
+              image: () => {
+                const { clientX, y: clientY } = window.event
+                const position = { x: clientX, y: clientY }
+                this.ReactQuillImageUploaderRef &&
+                  this.ReactQuillImageUploaderRef.toggle(position)
+              }
+            }
+          }
+        }
+        componentDidMount() {
+          this.quill = this.quillRef && this.quillRef.getEditor()
+          this.setState({ quill: this.quill })
+          // import {saveImageSrc} from 'react-quill-image-uploader', call saveImageSrc('https://iph.href.lu/100x100')
+          // or
+          // <script> call
+          ReactQuillImageUploader.saveImageSrc({
+            name: "test",
+            src: "https://iph.href.lu/100x100"
+          })
+        }
+
+        render() {
+          const {
+            modules,
+            className = "",
+            placeholder = "write here.."
+          } = this.props
+          const { quill = {} } = this.state
+          return (
+            <div>
+              <ReactQuill
+                ref={el => {
+                  this.quillRef = el
+                }}
+                placeholder={placeholder}
+                modules={modules || this.modules}
+                className={className}
+              />
+              <ReactQuillImageUploader
+                ref={el => {
+                  this.ReactQuillImageUploaderRef = el
+                }}
+                quill={quill}
+                uploadCallback={uploadImageCallBack}
+              />
+            </div>
+          )
         }
       }
-    }
-  }
-  componentDidMount () {
-		this.quill = this.quillRef && this.quillRef.getEditor()
-    this.setState({ quill: this.quill })
-    // import {saveImageSrc} from 'react-quill-image-uploader', call saveImageSrc('https://iph.href.lu/100x100')
-    // or
-    // <script> call 
-    ReactQuillImageUploader.saveImageSrc('https://iph.href.lu/100x100')
-  }
-
-  render () {
-    const { modules, className = '', placeholder = 'write here..' } = this.props
-    const { quill={} } = this.state
-    return (<div>
-      <ReactQuill
-        ref={(el) => { this.quillRef = el; }}
-        placeholder={placeholder}
-        modules={modules || this.modules}
-        className={className}/>
-      <ReactQuillImageUploader ref={(el) => { this.ReactQuillImageUploaderRef = el }} quill={quill} uploadCallback={uploadImageCallBack} />
-    </div>)
-  }
-}
-async function uploadImageCallBack (file) {
-  // post file
-  return Promise.resolve({
-    data: {
-      link:'https://iph.href.lu/200x200'
-    }
-  })
-}
-ReactDOM.render(
-	<App/>,
-	document.getElementById('example')
-);
-</script>
-
-</body>
+      async function uploadImageCallBack(file) {
+        // post file
+        return Promise.resolve({
+          data: {
+            name: file.name || "",
+            link: "https://iph.href.lu/200x200"
+          }
+        })
+      }
+      ReactDOM.render(<App />, document.getElementById("example"))
+    </script>
+  </body>
 </html>
