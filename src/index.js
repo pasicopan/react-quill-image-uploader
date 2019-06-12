@@ -1,7 +1,7 @@
 import React from "react"
 import style from "./style.less"
 
-const LOCALSTORAGENAME = "editorUploadImageHistory"
+const LOCALSTORAGENAME = "EDITORUPLOADIMAGEHISTORY"
 const LOCALSTORAGEDEFAULTVALUE = '{"list":[]}'
 const originPosition = { x: 50, y: -100 }
 let reactQuillImageUploader = null
@@ -20,18 +20,34 @@ function getDataFromLocalstorage() {
 
 function saveImage({ name, src }) {
   const data = getDataFromLocalstorage()
-  if (data.list.some(d => d.src === src)) return
+  if (data.list.some(d => src === d.src)) return
   data.list.unshift({ name, src })
 
   try {
     localStorage.setItem(LOCALSTORAGENAME, JSON.stringify(data))
     reactQuillImageUploader && reactQuillImageUploader.updataList()
   } catch (err) {
-    console.log(err)
-    localStorage.setItem(LOCALSTORAGENAME, LOCALSTORAGEDEFAULTVALUE)
+    const msg =
+      "May be your browser localStorage is full. Please delete some old image and retry."
+    console.error(msg + ", error=" + err)
+    alert(msg)
+    // localStorage.setItem(LOCALSTORAGENAME, LOCALSTORAGEDEFAULTVALUE)
   }
 }
-
+function getBase64(file) {
+  return new Promise((resolve, reject) => {
+    var reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = function() {
+      // console.log(reader.result)
+      resolve(reader.result)
+    }
+    reader.onerror = function(error) {
+      console.log("Error: ", error)
+      reject(error)
+    }
+  })
+}
 /**
  * saveImageSrc
  * for version <=0.0.2
@@ -62,6 +78,7 @@ export default class ReactQuillImageUploader extends React.Component {
     urlLink: "",
     uploadType: "file",
     editorSelectionIndex: 0,
+    isBase64: false,
     hasAddEvent: false,
     style: style,
     uploading: false,
@@ -115,10 +132,10 @@ export default class ReactQuillImageUploader extends React.Component {
     this.setState({ list })
     removeImageSrc(imgSrc)
   }
-  insertImg = (imgSrc, width = "100%") => {
+  insertImg = (imgSrc, width = "100%", source = "user") => {
     const { quill } = this.props
     const index = this.state.editorSelectionIndex
-    quill.insertEmbed(index, "image", imgSrc, "user")
+    quill.insertEmbed(index, "image", imgSrc, source)
     quill.formatText(index, index + 1, "width", width)
     quill.setSelection(index + 1)
   }
@@ -167,7 +184,16 @@ export default class ReactQuillImageUploader extends React.Component {
     const promiseList = []
     const len = e.target.files.length
     for (let i = 0; i < len; i++) {
-      promiseList.push(uploadCallback(e.target.files[i]))
+      const f = e.target.files[i]
+      if (this.state.isBase64) {
+        promiseList.push(
+          getBase64(f).then(base64 => {
+            return uploadCallback(f, base64)
+          })
+        )
+      } else {
+        promiseList.push(uploadCallback(f))
+      }
     }
     Promise.all(promiseList).then(dataList => {
       dataList.forEach(data => {
@@ -235,7 +261,7 @@ export default class ReactQuillImageUploader extends React.Component {
     }
   }
   onChangeUploadType = e => {
-    console.log("onChangeUploadType,e=", e, e.currentTarget.value)
+    // console.log("onChangeUploadType,e=", e, e.currentTarget.value)
     this.setState({ uploadType: e.currentTarget.value })
   }
   handleSubmitURL = () => {
@@ -250,6 +276,11 @@ export default class ReactQuillImageUploader extends React.Component {
   handleChangeUrlLink = e => {
     this.setState({
       urlLink: e.target.value,
+    })
+  }
+  onChangeIsBase64 = e => {
+    this.setState({
+      isBase64: e.target.checked,
     })
   }
 
@@ -320,29 +351,47 @@ export default class ReactQuillImageUploader extends React.Component {
                 </div>
               </div>
             )}
-            <div>
-              <input
-                type="radio"
-                name="uploadType"
-                value="file"
-                checked={this.state.uploadType === "file"}
-                onChange={this.onChangeUploadType}
-              />
-              <span>File</span>
-              <input
-                type="radio"
-                name="uploadType"
-                value="url"
-                checked={this.state.uploadType === "url"}
-                onChange={this.onChangeUploadType}
-              />
-              <span>URL</span>
+            <div className={style.uploadTypeBar}>
+              <div className={style.uploadType}>
+                <input
+                  type="radio"
+                  name="uploadType"
+                  value="file"
+                  checked={this.state.uploadType === "file"}
+                  onChange={this.onChangeUploadType}
+                />
+                <span>File</span>
+                <input
+                  type="radio"
+                  name="uploadType"
+                  value="url"
+                  checked={this.state.uploadType === "url"}
+                  onChange={this.onChangeUploadType}
+                />
+                <span>URL</span>
+              </div>
+              {this.state.uploadType === "file" && (
+                <div className={style.uploadTypeExt}>
+                  <input
+                    type="checkbox"
+                    name="base64"
+                    value={"base64"}
+                    checked={this.state.isBase64}
+                    onChange={this.onChangeIsBase64}
+                  />
+                  <span>base64</span>
+                </div>
+              )}
             </div>
             {this.state.list.length > 0 && (
               <p className={style.historyTitle}>upload history</p>
             )}
             <div className={style.imageList}>
               {this.state.list.map((img, key) => {
+                let titleSrc = img.src
+                if (titleSrc.length > 50) {
+                  titleSrc = titleSrc.slice(0, 50) + "..."
+                }
                 return (
                   <div
                     key={`imageListItem_key_${key}`}
@@ -352,7 +401,10 @@ export default class ReactQuillImageUploader extends React.Component {
                       <img src={img.src} className={style.imageListImg} />
                     </div>
                     <div className={style.content}>
-                      <p title={img.name} className={style.imgName}>
+                      <p
+                        title={img.name + ` ${titleSrc}`}
+                        className={style.imgName}
+                      >
                         {img.name}
                       </p>
                       <div className={style.btns}>

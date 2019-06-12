@@ -53,10 +53,12 @@
             src: "https://iph.href.lu/100x100"
           })
         }
-        uploadImageCallBack = async file => {
-          // post file
-          const src = "https://iph.href.lu/200x200"
-
+        uploadImageCallBack = async (file, base64) => {
+          // submit file to server
+          let src = "https://iph.href.lu/200x200" // demo image src
+          if (base64) {
+            src = base64
+          }
           // insertImg by hand
           this.ReactQuillImageUploaderRef &&
             this.ReactQuillImageUploaderRef.insertImg(src)

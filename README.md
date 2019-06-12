@@ -47,18 +47,20 @@ class App extends React.Component {
     // import {saveImageSrc} from 'react-quill-image-uploader', call saveImageSrc('https://iph.href.lu/100x100')
     // or
     // from version 0.0.1
-    ReactQuillImageUploader.saveImageSrc("https://iph.href.lu/100x100")
+    // ReactQuillImageUploader.saveImageSrc("https://iph.href.lu/100x100")
     // from version 0.0.4
-    // ReactQuillImageUploader.saveImage({
-    //   name: "test",
-    //   src: "https://iph.href.lu/100x100"
-    // })
+    ReactQuillImageUploader.saveImage({
+      name: "demo.jpg",
+      src: "https://iph.href.lu/100x100"
+    })
   }
 
-  uploadImageCallBack = async file => {
-    // post file
-    const src = "https://iph.href.lu/200x200"
-
+  uploadImageCallBack = async (file, base64) => {
+    // submit file to server
+    let src = "https://iph.href.lu/200x200" // demo image src
+    if (base64) {
+      src = base64
+    }
     // insertImg by hand
     this.ReactQuillImageUploaderRef &&
       this.ReactQuillImageUploaderRef.insertImg(src)
@@ -96,7 +98,17 @@ class App extends React.Component {
 }
 ```
 
+### api
+
+- insertImg(imgSrc, width = "100%", source = "user") // insert img into editor at last editor selection index. [quill more info](https://quilljs.com/docs/api/#insertembed)
+- saveImage({name,src}) // save name and src into localStorage
+- saveImageSrc(src) // save src into localStorage
+- toggle({x=0,y=0}) // show or hide at browser somewhere
+- uploadCallback // return promise {data: {name,link}}
+
 ### history
 
+- 20190612,v0.0.6 support to insert image by base64, modify image preview ui.
+- 20190612,v0.0.5 fix bug for public method `saveImage`, add public method `insertImg` for inserting img by hand。
 - 20190611,v0.0.4 add new upload type, upload by insert image src。
 - 20190611,v0.0.3 update to new UI, insert image without focus on editor。

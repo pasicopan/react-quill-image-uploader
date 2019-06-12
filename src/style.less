@@ -1,3 +1,5 @@
+@bgcolor : #eee;
+
 .toolBarButton {
   position: relative;
   display: flex;
@@ -53,6 +55,7 @@
       width: 100%;
       height: 100%;
       padding: 10px;
+      background-color: @bgcolor;
       .uploadInputLabel {
         box-sizing: border-box;
         text-align: center;
@@ -81,9 +84,9 @@
     width: 222px;
     overflow-x: hidden;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    background-color: #eee;
     .urlform {
       padding: 10px;
+      background-color: @bgcolor;
       .urlItem {
         display: flex;
         flex-direction: row;
@@ -103,6 +106,14 @@
         text-align: right;
       }
     }
+    .uploadTypeBar {
+      background-color: @bgcolor;
+      display: flex;
+      flex-direction: row;
+      .uploadType {
+        flex: 1;
+      }
+    }
     .historyTitle {
       font-size: 14px;
       font-style: italic;
@@ -114,6 +125,7 @@
     .imageList {
       max-height: 200px;
       overflow-y: auto;
+      overflow-x: hidden;
       .imageListItem {
         border-bottom: 1px solid #aaa;
         height: 70px;
@@ -121,6 +133,7 @@
         display: flex;
         flex-direction: row;
         .content {
+          background-color: @bgcolor;
           flex: 1;
           .imgName {
             height: 40px;
@@ -167,6 +180,7 @@
             height: auto;
             max-height: 100%;
             display: block;
+            margin: 0 auto;
           }
         }
       }
