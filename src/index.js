@@ -74,6 +74,7 @@ export default class ReactQuillImageUploader extends React.Component {
     },
   }
   static saveImageSrc = saveImageSrc
+  static saveImage = saveImage
   componentWillReceiveProps(props) {
     this.addEvent(props)
   }
@@ -357,7 +358,7 @@ export default class ReactQuillImageUploader extends React.Component {
                       <div className={style.btns}>
                         <div
                           className={style.insertBtn}
-                          onClick={e => {
+                          onClick={() => {
                             this.insertImg(img.src)
                           }}
                         >
@@ -365,7 +366,7 @@ export default class ReactQuillImageUploader extends React.Component {
                         </div>
                         <div
                           className={style.deleteBtn}
-                          onClick={e => {
+                          onClick={() => {
                             this.deleteImg(img.src)
                           }}
                         >
