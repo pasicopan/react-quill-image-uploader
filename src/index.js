@@ -104,12 +104,11 @@ export default class ReactQuillImageUploader extends React.Component {
     this.updataList()
   }
   componentWillUnmount() {
-    this.removeEvent()
-    document.body.removeEventListener("mousemove", this.componentMouseMove)
-    document.body.removeEventListener("mouseup", this.componentMouseUp)
+    this.removeEvent()    
   }
   addEvent = props => {
     const { quill } = props
+    if (!quill) return
     if (!quill.on || this.state.hasAddEvent) return
     this.setState({ hasAddEvent: true })
     quill.on("selection-change", this.selectionChange)
@@ -122,6 +121,8 @@ export default class ReactQuillImageUploader extends React.Component {
   removeEvent = () => {
     const { quill } = this.props
     quill.off("selection-change", this.selectionChange)
+    document.body.removeEventListener("mousemove", this.componentMouseMove)
+    document.body.removeEventListener("mouseup", this.componentMouseUp)
   }
   updataList = () => {
     const data = getDataFromLocalstorage()
