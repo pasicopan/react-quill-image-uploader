@@ -27,9 +27,10 @@
   .dragArea {
     box-sizing: border-box;
     flex: 1;
-    text-align: right;
+    text-align: left;
     line-height: 30px;
-    color: #000;
+    color: #fff;
+    text-indent: 1em;
   }
   .icon {
     border: 1px solid #f1f1f1;
@@ -145,6 +146,10 @@
             white-space: nowrap;
             width: 150px;
           }
+          .imgFail{
+            text-decoration: line-through;
+            color:red;
+          }
           .btns {
             height: 24px;
             display: flex;
@@ -152,6 +157,7 @@
             align-items: center;
             justify-content: center;
             .insertBtn,
+            .reUploadBtn,
             .deleteBtn {
               cursor: pointer;
               display: block;

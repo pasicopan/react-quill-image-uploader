@@ -18,10 +18,31 @@ function getDataFromLocalstorage() {
   return data
 }
 
-function saveImage({ name, src }) {
+function getHistory() {
+  const data = getDataFromLocalstorage()
+  return data.list
+}
+function setHistory(list) {
+  try {
+    localStorage.setItem(LOCALSTORAGENAME, JSON.stringify({list}))
+    reactQuillImageUploader && reactQuillImageUploader.updataList()
+    return true
+  } catch (err) {
+    const msg =
+      "May be your browser localStorage is full. Please delete some old image and retry."
+    console.error(msg + ", error=" + err)
+    return false
+  }
+}
+function removeHistory() {
+  return setHistory([])
+}
+
+function saveImage(config) {
+  const { name, src, status } = config
   const data = getDataFromLocalstorage()
   if (data.list.some(d => src === d.src)) return
-  data.list.unshift({ name, src })
+  data.list.unshift({ name, src, status })
 
   try {
     localStorage.setItem(LOCALSTORAGENAME, JSON.stringify(data))
@@ -74,6 +95,10 @@ export default class ReactQuillImageUploader extends React.Component {
   isDrag = false
   componentPosition = Object.assign({}, originPosition)
   state = {
+    uploadFailList:[],
+    isShowHistory:true,
+    isShowUploadFail:true,
+    title: "",
     urlName: "",
     urlLink: "",
     uploadType: "file",
@@ -92,16 +117,25 @@ export default class ReactQuillImageUploader extends React.Component {
   }
   static saveImageSrc = saveImageSrc
   static saveImage = saveImage
+  static getHistory = getHistory
+  static setHistory = setHistory
+  static removeHistory = removeHistory
+  
   componentWillReceiveProps(props) {
-    this.addEvent(props)
+    this.init(props)
   }
   componentWillMount() {
-    this.addEvent(this.props)
+    this.init(this.props)
     reactQuillImageUploader = this
     this.isShowDialog = this.state.isShowDialog
     document.body.addEventListener("mousemove", this.componentMouseMove)
     document.body.addEventListener("mouseup", this.componentMouseUp)
     this.updataList()
+  }
+  init = (props)=>{
+    this.addEvent(props)
+    const { isShowUploadFail=true, isShowHistory=true } = props
+    this.setState({ isShowUploadFail, isShowHistory})
   }
   componentWillUnmount() {
     this.removeEvent()    
@@ -133,6 +167,14 @@ export default class ReactQuillImageUploader extends React.Component {
     this.setState({ list })
     removeImageSrc(imgSrc)
   }
+  
+  deleteReUpload = file => {
+    this.setState({ uploadFailList: this.state.uploadFailList.filter(f => f !== file)})
+  }
+  reUploadImg = file => {
+    this.deleteReUpload(file)
+    this.upload([file])
+  }
   insertImg = (imgSrc, width = "100%", source = "user") => {
     const { quill } = this.props
     const index = this.state.editorSelectionIndex
@@ -152,7 +194,8 @@ export default class ReactQuillImageUploader extends React.Component {
       isShowDialog: this.isShowDialog,
     })
   }
-  toggle = ({ x = 0, y = 0 }) => {
+  toggle = (config) => {
+    const { title='', x = window.event.x, y = window.event.y } = config
     if (this.isShowDialog) {
       this.updataList()
     }
@@ -169,6 +212,7 @@ export default class ReactQuillImageUploader extends React.Component {
     this.componentPosition.x = left
     this.componentPosition.y = top
     this.setState({
+      title,
       isShowDialog: this.isShowDialog,
       componentPositionStyle: {
         left: `${left}px`,
@@ -177,34 +221,47 @@ export default class ReactQuillImageUploader extends React.Component {
     })
   }
   getFiles = e => {
+    if (e.target.files && e.target.files.length > 0){
+      this.upload(e.target.files)
+    }
+  }
+  upload = files => {
     const { uploadCallback } = this.props
-    if (e.target.files && e.target.files.length > 0) {
+    if (files && files.length > 0) {
       this.setState({ uploading: true })
     }
     let finished = 0
     const promiseList = []
-    const len = e.target.files.length
+    const len = files.length
     for (let i = 0; i < len; i++) {
-      const f = e.target.files[i]
+      const f = files[i]
       if (this.state.isBase64) {
         promiseList.push(
           getBase64(f).then(base64 => {
-            return uploadCallback(f, base64)
+            return uploadCallback(f, base64).then((data) => [data, f])
           })
         )
       } else {
-        promiseList.push(uploadCallback(f))
+        promiseList.push(uploadCallback(f).then((data)=>[data,f]))
       }
     }
     Promise.all(promiseList).then(dataList => {
-      dataList.forEach(data => {
-        if (data.data.link) {
-          saveImage({ name: data.data.name, src: data.data.link })
+      const uploadFailList = []
+
+      dataList.forEach(dataFileList => {
+        const [data, file] = dataFileList
+        if (data && data.status==='fail'){          
+          uploadFailList.push(file)
+        }else if (data && data.data.link) {
+          saveImage({ name: data.data.name, src: data.data.link, status: data.status})
         }
         finished++
         if (finished === len) {
           this.setState({ uploading: false })
         }
+      })
+      this.setState({
+        uploadFailList,
       })
     })
   }
@@ -237,7 +294,6 @@ export default class ReactQuillImageUploader extends React.Component {
     })
   }
   componentMouseUp = e => {
-    e.preventDefault()
     if (this.isDrag) {
       this.isDrag = false
       this.componentPosition.x += this.componentPosition.mx || 0
@@ -298,7 +354,9 @@ export default class ReactQuillImageUploader extends React.Component {
               <div
                 className={style.dragArea}
                 onMouseDown={this.componentMouseDown}
-              />
+               >
+                {this.state.title} 
+              </div>
               <div className={style.closeBtn} onClick={this.hideDialog}>
                 X
               </div>
@@ -384,51 +442,20 @@ export default class ReactQuillImageUploader extends React.Component {
                 </div>
               )}
             </div>
-            {this.state.list.length > 0 && (
-              <p className={style.historyTitle}>upload history</p>
+            {this.state.uploadFailList.length > 0 && this.state.isShowUploadFail && (
+              <p className={style.historyTitle}>upload fail {this.state.uploadFailList.length}</p>
             )}
             <div className={style.imageList}>
-              {this.state.list.map((img, key) => {
-                let titleSrc = img.src
-                if (titleSrc.length > 50) {
-                  titleSrc = titleSrc.slice(0, 50) + "..."
-                }
-                return (
-                  <div
-                    key={`imageListItem_key_${key}`}
-                    className={style.imageListItem}
-                  >
-                    <div className={style.imageListImgCon}>
-                      <img src={img.src} className={style.imageListImg} />
-                    </div>
-                    <div className={style.content}>
-                      <p
-                        title={img.name + ` ${titleSrc}`}
-                        className={style.imgName}
-                      >
-                        {img.name}
-                      </p>
-                      <div className={style.btns}>
-                        <div
-                          className={style.insertBtn}
-                          onClick={() => {
-                            this.insertImg(img.src)
-                          }}
-                        >
-                          insert
-                        </div>
-                        <div
-                          className={style.deleteBtn}
-                          onClick={() => {
-                            this.deleteImg(img.src)
-                          }}
-                        >
-                          delete
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
+              {this.state.isShowUploadFail && this.state.uploadFailList.map((file, key) => {
+                return (<HistoryItem title={file.name} key={key} file={file} reUploadImg={this.reUploadImg.bind(this)} deleteReUpload={this.deleteReUpload.bind(this)} />)
+              })}
+            </div>
+            {this.state.list.length > 0 && this.state.isShowHistory && (
+              <p className={style.historyTitle}>upload history {this.state.list.length}</p>
+            )}
+            <div className={style.imageList}>
+              {this.state.isShowHistory && this.state.list.map((img, key) => {
+                return (<HistoryItem title={img.name} key={key} src={img.src} insertImg={this.insertImg.bind(this)} deleteImg={this.deleteImg.bind(this)}/>)
               })}
             </div>
           </div>
@@ -438,4 +465,68 @@ export default class ReactQuillImageUploader extends React.Component {
   }
 }
 
-export { saveImage, saveImageSrc, removeImageSrc }
+function HistoryItem(props) {
+  const { title, src, insertImg, deleteImg, reUploadImg, deleteReUpload, file } = props
+  return (
+    <div
+      className={style.imageListItem}
+    >
+      <div className={style.imageListImgCon}>
+        <img src={src} className={style.imageListImg} />
+      </div>
+      {file && <div className={style.content}>
+        <p
+          title={title}
+          className={[style.imgName, style.imgFail].join(' ')}
+        >
+          {title}
+        </p>
+        <div className={style.btns}>
+          <div
+            className={style.reUploadBtn}
+            onClick={() => {
+              reUploadImg(file)
+            }}
+          >
+            upload
+          </div>
+          <div
+            className={style.reUploadBtn}
+            onClick={() => {
+              deleteReUpload(file)
+            }}
+          >
+            delete
+          </div>
+        </div>
+      </div>}
+      {!file && <div className={style.content}>
+        <p
+          title={title}
+          className={style.imgName}
+        >
+          {title}
+        </p>
+        <div className={style.btns}>
+          <div
+            className={style.insertBtn}
+            onClick={() => {
+              insertImg(src)
+            }}
+          >
+            insert
+            </div>
+          <div
+            className={style.deleteBtn}
+            onClick={() => {
+              deleteImg(src)
+            }}
+          >
+            delete
+          </div>
+        </div>
+      </div>}
+    </div>)
+}
+
+export { saveImage, saveImageSrc, removeImageSrc, getHistory,setHistory,removeHistory }

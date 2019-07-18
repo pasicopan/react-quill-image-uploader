@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/react-dom@16.7.0/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/react-quill@latest/dist/react-quill.js"></script>
     <script src="../lib/react-quill-image-uploader.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/gh/pasicopan/react-quill-image-uploader@dev/lib/react-quill-image-uploader.min.js"></script> -->
     <link
       rel="stylesheet"
       href="https://unpkg.com/react-quill@1.0.0/dist/quill.core.css"
@@ -17,64 +18,124 @@
       rel="stylesheet"
       href="https://unpkg.com/react-quill@1.0.0/dist/quill.snow.css"
     />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .title {
+        background-color: #00313c;
+        color: #fff;
+        text-align: center;
+        padding: 50px 0;
+        margin: 0;
+      }
+      .title2 {
+        color: #00313c;
+        text-align: center;
+        padding: 50px 0;
+        margin: 0;
+      }
+      .app {
+        width: 80%;
+        margin: 0 auto;
+      }
+      .des {
+        margin-top: 50px;
+      }
+      #editor {
+        background-color: #fff;
+      }
+    </style>
   </head>
 
   <body>
-    <div id="example"></div>
+    <h1 class="title">React quill image uploader</h1>
+    <div class="app">
+      <div class="des">
+        A plugin for react-quill which can upload multi image and remember the
+        image url histroy
+        <ul>
+          <li>
+            click or drag an image into "click or drag" area, then plugin will
+            call uploadCallback and wait for the promise
+          </li>
+          <li>plugin will remember the image url which is saved</li>
+          <li>
+            click the image preview, the plugin will insert the image into the
+            editor
+          </li>
+          <li>drag the toolbar of the plugin and move where you want</li>
+          <li><a href="https://github.com/pasicopan/react-quill-image-uploader">github</a></li>
+        </ul>
+      </div>
+      <h1 class="title2">Try it now</h1>
+      <div id="editor"></div>
+    </div>
 
     <script type="text/babel">
-      // import ReactQuillImageUploader,{saveImageSrc} from 'react-quill-image-uploader'
-
+      // import ReactQuill, { Quill, Mixin, Toolbar } from 'react-quill'; // ES6
       class App extends React.Component {
         state = {}
         modules = {
           toolbar: {
-            container: [["bold", "italic", "underline", "strike"], ["image"]],
+            container: [['image']],
             handlers: {
               image: () => {
                 const { clientX, y: clientY } = window.event
-                const position = { x: clientX, y: clientY }
-                this.ReactQuillImageUploaderRef &&
-                  this.ReactQuillImageUploaderRef.toggle(position)
-              }
-            }
-          }
+                const config = { x: clientX, y: clientY, title: 'hello' }
+                this.ReactQuillImageUploaderRef.toggle(config)
+              },
+            },
+          },
         }
         componentDidMount() {
           this.quill = this.quillRef && this.quillRef.getEditor()
           this.setState({ quill: this.quill })
-          // import {saveImageSrc} from 'react-quill-image-uploader', call saveImageSrc('https://iph.href.lu/100x100')
-          // or
+          // import {saveImage, removeImageSrc, getHistory, setHistory, removeHistory} from 'react-quill-image-uploader'
+
           // from version 0.0.1
           // ReactQuillImageUploader.saveImageSrc("https://iph.href.lu/100x100")
           // from version 0.0.4
+          // add new one to history
           ReactQuillImageUploader.saveImage({
-            name: "demo.jpg",
-            src: "https://iph.href.lu/100x100"
+            name: 'demo.jpg',
+            src: 'https://iph.href.lu/100x100',
           })
         }
         uploadImageCallBack = async (file, base64) => {
           // submit file to server
-          let src = "https://iph.href.lu/200x200" // demo image src
+          let src = 'https://iph.href.lu/200x200' // demo image src
           if (base64) {
             src = base64
           }
-          // insertImg by hand
-          this.ReactQuillImageUploaderRef &&
+          // upload img thing
+          const uploadSuccess = false
+          if (uploadSuccess) {
+            // insert img into editor manually
             this.ReactQuillImageUploaderRef.insertImg(src)
 
-          return Promise.resolve({
-            data: {
-              name: file.name || "",
-              link: src
+            // return data to save to plugin history
+            return {
+              data: {
+                name: file.name || '',
+                link: src,
+              },
             }
-          })
+          } else if (!uploadSuccess) {
+            // return status: 'fail' , plugin will warn the user to upload again, will not save in history
+            return {
+              status: 'fail',
+            }
+          } else {
+            // do not save anything to history
+          }
         }
         render() {
           const {
             modules,
-            className = "",
-            placeholder = "write here.."
+            className = '',
+            placeholder = 'write here..',
           } = this.props
           const { quill = {} } = this.state
           return (
@@ -91,6 +152,8 @@
                 ref={el => {
                   this.ReactQuillImageUploaderRef = el
                 }}
+                isShowUploadFail={true} // default true, uopload fail history is hidden when false
+                isShowHistory={true} // default true, history is hidden when false
                 quill={quill}
                 uploadCallback={this.uploadImageCallBack}
               />
@@ -98,7 +161,7 @@
           )
         }
       }
-      ReactDOM.render(<App />, document.getElementById("example"))
+      ReactDOM.render(<App />, document.getElementById('editor'))
     </script>
   </body>
 </html>
