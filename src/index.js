@@ -260,11 +260,11 @@ export default class ReactQuillImageUploader extends React.Component {
       if (this.state.isBase64) {
         promiseList.push(
           getBase64(f).then(base64 => {
-            return uploadCallback(f, base64).then((data) => [data, f]).catch(() => [null, f])
+            return uploadCallback(f, base64).then((data) => [data, f]).catch(() => [{ status: 'fail' }, f])
           })
         )
       } else {
-        promiseList.push(uploadCallback(f).then((data) => [data, f]).catch(() => [null, f]))
+        promiseList.push(uploadCallback(f).then((data) => [data, f]).catch(() => [{ status: 'fail' }, f]))
       }
     }
     Promise.all(promiseList).then(dataList => {
@@ -272,7 +272,7 @@ export default class ReactQuillImageUploader extends React.Component {
 
       dataList.forEach(dataFileList => {
         const [data, file] = dataFileList
-        if (!data || data.status === 'fail') {
+        if (data && data.status === 'fail') {
           uploadFailList.push(file)
         } else if (data && data.data.link) {
           saveImage({ name: data.data.name, src: data.data.link, status: data.status })

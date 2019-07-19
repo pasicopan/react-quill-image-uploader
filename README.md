@@ -101,12 +101,14 @@ class App extends React.Component {
         // resolve({
         //   status: 'fail',
         // })
+        // resolve()
         // or
         setTimeout(() => {
           return reject()
-        }, 10 * 1000)
+        }, 3 * 1000)
       } else {
         // return nothing, meaning that do not save anything to history or upload fail panel
+        resolve()
       }
     })
   }
@@ -152,6 +154,7 @@ class App extends React.Component {
 ### history
 
 - 20190719,v0.1.1
+  - fix uploadCallback return nothing
   - uploadCallback support return `reject()` as well as `resolve({status: 'fail'})`
   - allow simultaneous uploads
   - show uploading files count when uploading
