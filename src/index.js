@@ -7,10 +7,9 @@ const originPosition = { x: 50, y: -100 }
 let reactQuillImageUploader = null
 
 function getDataFromLocalstorage() {
-  const dataJSONString =
-    localStorage.getItem(LOCALSTORAGENAME) || LOCALSTORAGEDEFAULTVALUE
-  let data = { list: [] }
+  let data
   try {
+    const dataJSONString = localStorage.getItem(LOCALSTORAGENAME) || LOCALSTORAGEDEFAULTVALUE
     data = JSON.parse(dataJSONString)
     if (!data || !data.list || !data.list.some) {
       throw new Error('LOCALSTORAGE FORMAT ERROR')
@@ -18,12 +17,14 @@ function getDataFromLocalstorage() {
   } catch (err) {
     localStorage.setItem(LOCALSTORAGENAME, LOCALSTORAGEDEFAULTVALUE)
     console.warn(err, 'reset LOCALSTORAGE')
+    data = { list: [] }
   }
   return data
 }
 
 function getHistory() {
   const data = getDataFromLocalstorage()
+  reactQuillImageUploader && reactQuillImageUploader.updataList()
   return data.list
 }
 function setHistory(list) {
@@ -43,7 +44,7 @@ function setHistory(list) {
   }
 
   try {
-    localStorage.setItem(LOCALSTORAGENAME, JSON.stringify({ valList }))
+    localStorage.setItem(LOCALSTORAGENAME, JSON.stringify({ list: valList }))
     reactQuillImageUploader && reactQuillImageUploader.updataList()
     return true
   } catch (err) {
@@ -114,7 +115,7 @@ export default class ReactQuillImageUploader extends React.Component {
   processing = 0
   componentPosition = Object.assign({}, originPosition)
   state = {
-    processing:0,
+    processing: 0,
     uploadFailList: [],
     isShowHistory: true,
     isShowUploadFail: true,
@@ -251,7 +252,7 @@ export default class ReactQuillImageUploader extends React.Component {
       this.setState({ uploading: true })
     }
     this.processing = this.processing + files.length
-    this.setState({ processing: this.processing})
+    this.setState({ processing: this.processing })
     const promiseList = []
     const len = files.length
     for (let i = 0; i < len; i++) {
