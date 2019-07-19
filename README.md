@@ -10,6 +10,7 @@ a plugin for react-quill which can upload multi image and remember the image url
 - drag the toolbar of the plugin and move where you want
 
 # online demo
+
 [demo](http://blog.pasico.cn/projects/react-quill-image-uploader/)
 
 # how to install
@@ -22,16 +23,16 @@ npm i react-quill-image-uploader
 # how to use
 
 ```javascript
-import ReactQuill from "react-quill"
-import "react-quill/dist/quill.snow.css"
+import ReactQuill from 'react-quill'
+import 'react-quill/dist/quill.snow.css'
 import ReactQuillImageUploader, {
-  saveImageSrc
-} from "react-quill-image-uploader"
+  saveImageSrc,
+} from 'react-quill-image-uploader'
 
 class App extends React.Component {
   modules = {
     toolbar: {
-      container: [["bold", "italic", "underline", "strike"], ["image"]],
+      container: [['bold', 'italic', 'underline', 'strike'], ['image']],
       handlers: {
         image: () => {
           const { clientX, y: clientY } = window.event
@@ -39,9 +40,9 @@ class App extends React.Component {
           this.ReactQuillImageUploaderRef.toggle(position) // show or hide the plugin
           // toggle() is also ok
           // this.ReactQuillImageUploaderRef.toggle()
-        }
-      }
-    }
+        },
+      },
+    },
   }
   componentDidMount() {
     this.quill = this.quillRef.getEditor()
@@ -52,8 +53,8 @@ class App extends React.Component {
     // ReactQuillImageUploader.saveImageSrc("https://iph.href.lu/100x100")
     // from version 0.0.4
     ReactQuillImageUploader.saveImage({
-      name: "demo.jpg",
-      src: "https://iph.href.lu/100x100"
+      name: 'demo.jpg',
+      src: 'https://iph.href.lu/100x100',
     })
 
     // remove all and add new one by the history api
@@ -65,48 +66,52 @@ class App extends React.Component {
     //   src: "https://iph.href.lu/100x100"
     // }])
 
-     // es5
+    // es5
     // ReactQuillImageUploader.setHistory([{
     //   name: "demo.jpg",
     //   src: "https://iph.href.lu/100x100"
     // }])
   }
 
-  uploadImageCallBack = async (file, base64) => {
-
+  uploadImageCallBack = (file, base64) => {
     // check file.size
     // check file type by file.name
 
-    // submit file to server
-    let src = "https://iph.href.lu/200x200" // demo image src
-    if (base64) {
-      src = base64
-    }
-    // upload img thing
-    const uploadSuccess = true
-    if(uploadSuccess){
-      // insert img into editor manually
-      this.ReactQuillImageUploaderRef.insertImg(src)  
+    return new Promise((resolve, reject) => {
+      // submit file to server
+      let src = 'https://iph.href.lu/200x200' // demo image src
+      if (base64) {
+        src = base64
+      }
+      // upload img thing
+      const uploadSuccess = false
+      if (uploadSuccess) {
+        // insert img into editor manually
+        this.ReactQuillImageUploaderRef.insertImg(src)
 
-      // return data to save to plugin history
-      return Promise.resolve({
-        data: {
-          name: file.name || "",
-          link: src
-        }
-      })
-    }else if(!uploadSuccess){
-      // return status: 'fail' , plugin will warn the user to upload again, will not save in history
-      return Promise.resolve({
-        status: 'fail'
-      })
-    }else{
-      // do not save anything to history
-    }
-    
+        // return data to save to plugin history
+        resolve({
+          data: {
+            name: file.name || '',
+            link: src,
+          },
+        })
+      } else if (!uploadSuccess) {
+        // return resolve({status: 'fail'}) or reject(), plugin will warn the user to upload again, will not save in history
+        // resolve({
+        //   status: 'fail',
+        // })
+        // or
+        setTimeout(() => {
+          return reject()
+        }, 10 * 1000)
+      } else {
+        // return nothing, meaning that do not save anything to history or upload fail panel
+      }
+    })
   }
   render() {
-    const { modules, className = "", placeholder = "write here.." } = this.props
+    const { modules, className = '', placeholder = 'write here..' } = this.props
     const { quill = {} } = this.state
     return (
       <div>
@@ -146,13 +151,21 @@ class App extends React.Component {
 
 ### history
 
-- 20190718,v0.1.0 
-    - fix editor selection bug (sorry guys)
-    - support custom title for plugin by using api .toggle({title})
-    - api .toggle() can be without any param now, default is {title='', x = window.event.x, y = window.event.y}
-    - add upload failed status, add some history api [detail](https://github.com/pasicopan/react-quill-image-uploader/issues/1)
-    - uploadCallback return nothing is ok now, which mean that I do not want to save anything to the history
-    - this plugin can handle input other kind of file since (0.1.0) `uploadCallback can return nothing`, like audio and video
+- 20190719,v0.1.1
+  - uploadCallback support return `reject()` as well as `resolve({status: 'fail'})`
+  - allow simultaneous uploads
+  - show uploading files count when uploading
+  - add history api args check for safe
+  - add localstorage value check for safe
+- 20190718,v0.1.0
+  - fix editor selection bug (sorry guys)
+  - support custom title for plugin by using api .toggle({title})
+  - api .toggle() can be without any param now, default is {title='', x = window.event.x, y = window.event.y}
+  - add upload failed status, add some history api [detail](https://github.com/pasicopan/react-quill-image-uploader/issues/1)
+  - uploadCallback return nothing is ok now, which mean that I do not want to save anything to the history
+  - this plugin can handle input other kind of file since (0.1.0) `uploadCallback can return nothing`, like audio and video
+  - add isShowUploadFail flag to show or hide the upload fail panel
+  - add isShowHistory flag to show or hide the upload history panel
 - 20190612,v0.0.6 support to insert image by base64, modify image preview ui.
 - 20190612,v0.0.5 fix bug for public method `saveImage`, add public method `insertImg` for inserting img by hand。
 - 20190611,v0.0.4 add new upload type, upload by insert image src。

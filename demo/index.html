@@ -66,7 +66,11 @@
             editor
           </li>
           <li>drag the toolbar of the plugin and move where you want</li>
-          <li><a href="https://github.com/pasicopan/react-quill-image-uploader">github</a></li>
+          <li>
+            <a href="https://github.com/pasicopan/react-quill-image-uploader"
+              >github</a
+            >
+          </li>
         </ul>
       </div>
       <h1 class="title2">Try it now</h1>
@@ -103,33 +107,42 @@
             src: 'https://iph.href.lu/100x100',
           })
         }
-        uploadImageCallBack = async (file, base64) => {
-          // submit file to server
-          let src = 'https://iph.href.lu/200x200' // demo image src
-          if (base64) {
-            src = base64
-          }
-          // upload img thing
-          const uploadSuccess = false
-          if (uploadSuccess) {
-            // insert img into editor manually
-            this.ReactQuillImageUploaderRef.insertImg(src)
+        uploadImageCallBack = (file, base64) => {
+          // check file.size
+          // check file type by file.name
 
-            // return data to save to plugin history
-            return {
-              data: {
-                name: file.name || '',
-                link: src,
-              },
+          return new Promise((resolve, reject) => {
+            // submit file to server
+            let src = 'https://iph.href.lu/200x200' // demo image src
+            if (base64) {
+              src = base64
             }
-          } else if (!uploadSuccess) {
-            // return status: 'fail' , plugin will warn the user to upload again, will not save in history
-            return {
-              status: 'fail',
+            // upload img thing
+            const uploadSuccess = false
+            if (uploadSuccess) {
+              // insert img into editor manually
+              this.ReactQuillImageUploaderRef.insertImg(src)
+
+              // return data to save to plugin history
+              resolve({
+                data: {
+                  name: file.name || '',
+                  link: src,
+                },
+              })
+            } else if (!uploadSuccess) {
+              // return {status: 'fail'} or reject(), plugin will warn the user to upload again, will not save in history
+              // return {
+              //   status: 'fail',
+              // }
+              // or
+              setTimeout(() => {
+                return reject()
+              }, 10 * 1000)
+            } else {
+              // return nothing, meaning that do not save anything to history or upload fail panel
             }
-          } else {
-            // do not save anything to history
-          }
+          })
         }
         render() {
           const {
