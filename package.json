@@ -35,17 +35,17 @@
     "@babel/preset-stage-0": "^7.0.0",
     "babel-eslint": "^9.0.0",
     "babel-loader": "^8.0.4",
-    "css-loader": "^2.1.0",
+    "css-loader": "^6.7.3",
     "eslint": "^5.11.1",
     "eslint-friendly-formatter": "^4.0.1",
-    "eslint-loader": "^2.1.1",
+    "eslint-loader": "^4.0.2",
     "less": "^3.9.0",
-    "less-loader": "^4.1.0",
+    "less-loader": "^11.1.0",
     "react": "^16.7.0",
-    "style-loader": "^0.23.1",
+    "style-loader": "^3.3.1",
     "uglifyjs-webpack-plugin": "^2.1.0",
-    "webpack": "^4.28.2",
-    "webpack-cli": "^3.1.2"
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
   },
   "engines": {
     "node": ">= 4.0.0",
